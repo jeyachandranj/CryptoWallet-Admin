@@ -12,13 +12,15 @@ import {
   useTheme,
   useMediaQuery,
   Checkbox,
+  CircularProgress,
 } from "@mui/material";
 
 export default function Dashboard() {
   const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm")); 
-  const [registrations, setRegistrations] = useState([]); 
-  const [markedRows, setMarkedRows] = useState({}); 
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const [registrations, setRegistrations] = useState([]);
+  const [markedRows, setMarkedRows] = useState({});
+  const [loading, setLoading] = useState(true); // Add loading state
 
   // Fetch marked rows from localStorage when the component mounts
   useEffect(() => {
@@ -32,28 +34,54 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("https://cryptowallet-2.onrender.com/api/dashboard"); 
+        const response = await fetch(
+          "https://cryptowallet-2.onrender.com/api/dashboard"
+        );
         const data = await response.json();
-        setRegistrations(data); 
+        setRegistrations(data);
+        setLoading(false); // Set loading to false after data is fetched
       } catch (error) {
         console.error("Error fetching registration data:", error);
+        setLoading(false); // Stop loading even if there's an error
       }
     };
 
     fetchData();
-  }, []); 
+  }, []);
 
   // Handle checkbox change to mark rows with color change
   const handleCheckboxChange = (id) => {
     setMarkedRows((prev) => {
       const updatedMarkedRows = { ...prev, [id]: !prev[id] };
-      
+
       // Save updated markedRows to localStorage
       localStorage.setItem("markedRows", JSON.stringify(updatedMarkedRows));
-      
+
       return updatedMarkedRows;
     });
   };
+
+  if (loading) {
+    // Render loading screen while data is being fetched
+    return (
+      <Box
+        sx={{
+          position: "fixed", // Ensure the loader covers the entire screen
+          top: 0,
+          left: 0,
+          width: "100vw", // Make it cover the entire viewport
+          height: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          backdropFilter: "blur(10px)", // Apply blur effect
+          zIndex: 1000, // Ensure it's on top of other elements
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -108,15 +136,11 @@ export default function Dashboard() {
                   <TableCell style={{ color: "#2a86f3" }}>Email</TableCell>
                 )}
                 {!isSmallScreen && (
-                  <TableCell style={{ color: "#2a86f3" }}>
-                    Address
-                  </TableCell>
+                  <TableCell style={{ color: "#2a86f3" }}>Address</TableCell>
                 )}
                 <TableCell style={{ color: "#2a86f3" }}>Referral ID</TableCell>
                 <TableCell style={{ color: "#2a86f3" }}>Type</TableCell>
-                <TableCell style={{ color: "#2a86f3" }}>
-                  Transferred
-                </TableCell>
+                <TableCell style={{ color: "#2a86f3" }}>Transferred</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -148,9 +172,13 @@ export default function Dashboard() {
                     {registration.TokenTxn && (
                       <Checkbox
                         checked={markedRows[registration.randomId] || false}
-                        onChange={() => handleCheckboxChange(registration.randomId)} // Toggle checkbox
+                        onChange={() =>
+                          handleCheckboxChange(registration.randomId)
+                        } // Toggle checkbox
                         style={{
-                          color: markedRows[registration.randomId] ? "green" : "white", // Change to green if checked
+                          color: markedRows[registration.randomId]
+                            ? "green"
+                            : "white", // Change to green if checked
                         }}
                       />
                     )}
