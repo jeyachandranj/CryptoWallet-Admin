@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react"; 
+import {useNavigate} from 'react-router-dom'
 import {
   Box,
   Typography,
@@ -11,6 +12,7 @@ import {
   TableContainer,
   useTheme,
   useMediaQuery,
+  Button,
   Checkbox,
   CircularProgress,
 } from "@mui/material";
@@ -48,6 +50,12 @@ export default function Dashboard() {
 
     fetchData();
   }, []);
+
+  const navigate = useNavigate()
+
+  const handleUpdate = () => {
+    navigate('/updatecredentials')
+  }
 
   // Handle checkbox change to mark rows with color change
   const handleCheckboxChange = (id) => {
@@ -102,15 +110,30 @@ export default function Dashboard() {
           px: 4,
         }}
       >
-        <Typography variant="h6" sx={{ color: "#ffffff" }}></Typography>
         <div style={{ width: "100%" }}>
           <h3 style={{ textAlign: "center", fontSize: "20px" }}>
             Customer Details
           </h3>
+
+          <Button
+            variant="contained" // You can change to "outlined" or "text"
+            color="primary" 
+            onClick={handleUpdate}
+            sx={{
+              padding: "10px 20px",
+              fontSize: "16px",
+              fontWeight: "bold",
+              borderRadius: "8px", // Rounded corners
+              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)", // Adds some shadow
+              "&:hover": {
+                boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.3)", // More shadow on hover
+              },
+            }}
+          >
+            Update Credentials
+          </Button>
         </div>
       </Box>
-
-      <button></button>
 
       <Box
         sx={{
